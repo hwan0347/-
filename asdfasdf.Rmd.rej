@@ -1,0 +1,96 @@
+diff a/asdfasdf.Rmd b/asdfasdf.Rmd	(rejected hunks)
+@@ -0,0 +1,94 @@
++---
++title: "�⵵��, ������ �����ӱݰ� ������ ���� ��"
++author: "���ȯ"
++date: "2018�� 6�� 4��"
++output: html_document
++---
++
++# �����ӱ�
++
++�Ⱓ : 2003 ~ 2017�����
++
++���� : ������ġ��ü(Ư���� ����)
++
++```{r}
++
++library(tidyverse)
++
++
++labour <- read.csv("https://raw.githubusercontent.com/hwan0347/test-model/%EA%B3%A0%EC%9A%A9%EB%A5%A0/labour_rate.csv")
++
++labour <- select(labour,-c(`X2017.1.2`:`X2017.2.2`))
++names(labour) <- c("county","city",c(2003:2017))
++
++rate <-labour %>% 
++  gather(year,labour_rate,`2003`:`2017`)
++
++
++
++```
++
++�����ӱ��� ������ �����ӿ� �߰��ϱ�
++```{r}
++rate <- cbind(rate,min_wages= ifelse(rate$year == 2003,2510,
++        ifelse(rate$year == 2004,2840,
++               ifelse(rate$year == 2005,3100,
++                      ifelse(rate$year == 2006,3100,
++                             ifelse(rate$year == 2007,3480,
++                                    ifelse(rate$year == 2008,3770,
++                                           ifelse(rate$year == 2009,4000,
++                                                  ifelse(rate$year == 2010,4110,
++                                                         ifelse(rate$year == 2011,4320,
++                                                                ifelse(rate$year == 2012,4580,
++                                                                       ifelse(rate$year == 2013,4860,
++                                                                              ifelse(rate$year == 2014,5210,
++                                                                                     ifelse(rate$year == 2015,5580,
++                                                                                            ifelse(rate$year == 2016,6030,6470)))))))))))))))
++
++
++```
++
++���� ������ �����ϱ�
++   
++   * ���� ���� �����ʹ� ������ü�� ����Ǿ��� ������ ������ �����Ϳ��� ��,���� ���Ÿ� �ؾ��Ѵ�.
++   ���� ����Ư����ġ�ô� �����Ͱ� �����ϱ� ������ �����ߴ�.
++   
++```{r}
++rate <- filter(rate,city == "�Ұ�")
++
++rate <- subset(rate,!county=="����Ư����ġ��")
++
++#���� ������ ����
++
++price <- read.csv("https://github.com/hwan0347/test-model/raw/%EA%B3%A0%EC%9A%A9%EB%A5%A0/price_rate.csv")
++
++price<-price[,-2]
++
++
++
++
++colnames(price) = c("county",2003:2017)
++
++
++
++
++
++price<-price %>% 
++  gather(year,price_rate,`2003`:`2017`)
++
++
++rate <-cbind(rate,price) 
++
++rate<- rate[,-c(6:7)]
++
++rate[,3:6] <-sapply(rate[,3:6],as.numeric)
++
++rate
++
++```
++����м�
++
++```{r}
++cor(rate[,3:6])
++```
++
