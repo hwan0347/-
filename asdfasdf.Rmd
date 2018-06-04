@@ -1,0 +1,94 @@
+---
+title: "년도별, 지역별 최저임금과 물가와 고용률 비교"
+author: "백승환"
+date: "2018년 6월 4일"
+output: html_document
+---
+
+# 최저임금
+
+기간 : 2003 ~ 2017년까지
+
+선정 : 광역자치단체(특별시 포함)
+
+```{r}
+
+library(tidyverse)
+
+
+labour <- read.csv("https://raw.githubusercontent.com/hwan0347/test-model/%EA%B3%A0%EC%9A%A9%EB%A5%A0/labour_rate.csv")
+
+labour <- select(labour,-c(`X2017.1.2`:`X2017.2.2`))
+names(labour) <- c("county","city",c(2003:2017))
+
+rate <-labour %>% 
+  gather(year,labour_rate,`2003`:`2017`)
+
+
+
+```
+
+최저임금을 데이터 프레임에 추가하기
+```{r}
+rate <- cbind(rate,min_wages= ifelse(rate$year == 2003,2510,
+        ifelse(rate$year == 2004,2840,
+               ifelse(rate$year == 2005,3100,
+                      ifelse(rate$year == 2006,3100,
+                             ifelse(rate$year == 2007,3480,
+                                    ifelse(rate$year == 2008,3770,
+                                           ifelse(rate$year == 2009,4000,
+                                                  ifelse(rate$year == 2010,4110,
+                                                         ifelse(rate$year == 2011,4320,
+                                                                ifelse(rate$year == 2012,4580,
+                                                                       ifelse(rate$year == 2013,4860,
+                                                                              ifelse(rate$year == 2014,5210,
+                                                                                     ifelse(rate$year == 2015,5580,
+                                                                                            ifelse(rate$year == 2016,6030,6470)))))))))))))))
+
+
+```
+
+물가 데이터 삽입하기
+   
+   * 현재 물가 데이터는 광역단체만 조사되었기 때문에 기존의 데이터에서 시,군을 제거를 해야한다.
+   또한 세종특별자치시는 데이터가 부족하기 때문에 제외했다.
+   
+```{r}
+rate <- filter(rate,city == "소계")
+
+rate <- subset(rate,!county=="세종특별자치시")
+
+#물가 데이터 삽입
+
+price <- read.csv("https://github.com/hwan0347/test-model/raw/%EA%B3%A0%EC%9A%A9%EB%A5%A0/price_rate.csv")
+
+price<-price[,-2]
+
+
+
+
+colnames(price) = c("county",2003:2017)
+
+
+
+
+
+price<-price %>% 
+  gather(year,price_rate,`2003`:`2017`)
+
+
+rate <-cbind(rate,price) 
+
+rate<- rate[,-c(6:7)]
+
+rate[,3:6] <-sapply(rate[,3:6],as.numeric)
+
+rate
+
+```
+상관분석
+
+```{r}
+cor(rate[,3:6])
+```
+
